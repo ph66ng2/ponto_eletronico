@@ -182,44 +182,44 @@ public class RegistroPontoDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             System.out.println("\n=== Registros Completos (View) ===");
-            System.out.printf("%-5s %-20s %-15s %-12s %-12s %-12s %-15s %-20s%n",
-                    "ID", "Funcionário", "Data", "Entrada", "Saída", "Horas Trab.", "Total Extras", "Departamento");
-            System.out.println("=".repeat(115));
+            System.out.printf("%-5s %-20s %-15s %-20s %-12s %-12s %-12s %-25s%n",
+                    "ID", "Funcionário", "Departamento", "Cargo", "Data", "Entrada", "Saída", "Observação");
+            System.out.println("=".repeat(125));
 
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
                 int idRegistro = rs.getInt("id_registro");
-                String nomeFuncionario = rs.getString("nome_funcionario");
+                String funcionario = rs.getString("funcionario");
                 LocalDate data = rs.getDate("data").toLocalDate();
 
                 java.sql.Time horaEntrada = rs.getTime("hora_entrada");
                 java.sql.Time horaSaida = rs.getTime("hora_saida");
-                BigDecimal horasTrabalhadas = rs.getBigDecimal("horas_trabalhadas");
-                BigDecimal totalHorasExtras = rs.getBigDecimal("total_horas_extras");
-                String nomeDepartamento = rs.getString("nome_departamento");
+                String departamento = rs.getString("departamento");
+                String cargo = rs.getString("cargo");
+                String observacao = rs.getString("observacao");
 
                 row.put("id_registro", idRegistro);
-                row.put("nome_funcionario", nomeFuncionario);
+                row.put("funcionario", funcionario);
                 row.put("data", data);
                 row.put("hora_entrada", horaEntrada);
                 row.put("hora_saida", horaSaida);
-                row.put("horas_trabalhadas", horasTrabalhadas);
-                row.put("total_horas_extras", totalHorasExtras);
-                row.put("nome_departamento", nomeDepartamento);
+                row.put("departamento", departamento);
+                row.put("cargo", cargo);
+                row.put("observacao", observacao);
                 resultado.add(row);
 
-                System.out.printf("%-5d %-20s %-15s %-12s %-12s %-12s %-15s %-20s%n",
+                System.out.printf("%-5d %-20s %-15s %-20s %-12s %-12s %-12s %-25s%n",
                         idRegistro,
-                        nomeFuncionario,
+                        funcionario,
+                        departamento,
+                        cargo,
                         data,
                         horaEntrada != null ? horaEntrada.toString() : "-",
                         horaSaida != null ? horaSaida.toString() : "-",
-                        horasTrabalhadas != null ? horasTrabalhadas.toString() : "-",
-                        totalHorasExtras != null ? totalHorasExtras.toString() : "-",
-                        nomeDepartamento);
+                        observacao != null ? observacao : "-");
             }
 
-            System.out.println("=".repeat(115));
+            System.out.println("=".repeat(125));
 
         } catch (SQLException e) {
             System.err.println("Erro ao listar registros completos: " + e.getMessage());
@@ -370,13 +370,13 @@ public class RegistroPontoDAO {
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
                 int idRegistro = rs.getInt("id_registro");
-                String nomeFuncionario = rs.getString("nome_funcionario");
+                String funcionario = rs.getString("funcionario");
                 LocalDate data = rs.getDate("data").toLocalDate();
                 java.sql.Time horaEntrada = rs.getTime("hora_entrada");
                 int minutosAtraso = rs.getInt("minutos_atraso");
 
                 row.put("id_registro", idRegistro);
-                row.put("nome_funcionario", nomeFuncionario);
+                row.put("funcionario", funcionario);
                 row.put("data", data);
                 row.put("hora_entrada", horaEntrada);
                 row.put("minutos_atraso", minutosAtraso);
@@ -384,7 +384,7 @@ public class RegistroPontoDAO {
 
                 System.out.printf("%-5d %-20s %-15s %-10s %-12d%n",
                         idRegistro,
-                        nomeFuncionario,
+                        funcionario,
                         data,
                         horaEntrada != null ? horaEntrada.toString() : "-",
                         minutosAtraso);
@@ -412,31 +412,31 @@ public class RegistroPontoDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             System.out.println("\n=== Horas Extras Mensais (View vw_horas_extras_mes) ===");
-            System.out.printf("%-5s %-20s %-6s %-15s%n",
-                    "ID", "Funcionário", "Mês", "Horas Extras");
-            System.out.println("=".repeat(55));
+            System.out.printf("%-20s %-6s %-6s %-15s%n",
+                    "Funcionário", "Ano", "Mês", "Horas Extras");
+            System.out.println("=".repeat(50));
 
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
-                int idFuncionario = rs.getInt("id_funcionario");
-                String nomeFuncionario = rs.getString("nome_funcionario");
-                String mes = rs.getString("mes");
+                String funcionario = rs.getString("funcionario");
+                int ano = rs.getInt("ano");
+                int mes = rs.getInt("mes");
                 BigDecimal horasExtras = rs.getBigDecimal("horas_extras");
 
-                row.put("id_funcionario", idFuncionario);
-                row.put("nome_funcionario", nomeFuncionario);
+                row.put("funcionario", funcionario);
+                row.put("ano", ano);
                 row.put("mes", mes);
                 row.put("horas_extras", horasExtras);
                 resultado.add(row);
 
-                System.out.printf("%-5d %-20s %-6s %-15s%n",
-                        idFuncionario,
-                        nomeFuncionario,
+                System.out.printf("%-20s %-6d %-6d %-15s%n",
+                        funcionario,
+                        ano,
                         mes,
                         horasExtras != null ? horasExtras.toString() : "0.00");
             }
 
-            System.out.println("=".repeat(55));
+            System.out.println("=".repeat(50));
 
         } catch (SQLException e) {
             System.err.println("Erro ao listar horas extras mensais: " + e.getMessage());
