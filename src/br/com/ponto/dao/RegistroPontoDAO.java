@@ -329,4 +329,119 @@ public class RegistroPontoDAO {
             System.err.println("Erro ao registrar saída: " + e.getMessage());
         }
     }
+
+    /**
+     * Chama a Procedure fechar_mes via CallableStatement.
+     */
+    public void fecharMes(int idDepartamento, int mes, int ano) {
+        String sql = "{call fechar_mes(?, ?, ?)}";
+
+        try (Connection conn = DBConnection.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setInt(1, idDepartamento);
+            stmt.setInt(2, mes);
+            stmt.setInt(3, ano);
+            stmt.execute();
+            System.out.println("Mês fechado com sucesso para o departamento!");
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao fechar mês: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Consulta a View vw_atrasos e exibe os resultados.
+     */
+    public List<Map<String, Object>> listarAtrasos() {
+        String sql = "SELECT * FROM vw_atrasos ORDER BY data DESC";
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            System.out.println("\n=== Atrasos (View vw_atrasos) ===");
+            System.out.printf("%-5s %-20s %-15s %-10s %-12s%n",
+                    "ID", "Funcionário", "Data", "Entrada", "Min. Atraso");
+            System.out.println("=".repeat(75));
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                int idRegistro = rs.getInt("id_registro");
+                String nomeFuncionario = rs.getString("nome_funcionario");
+                LocalDate data = rs.getDate("data").toLocalDate();
+                java.sql.Time horaEntrada = rs.getTime("hora_entrada");
+                int minutosAtraso = rs.getInt("minutos_atraso");
+
+                row.put("id_registro", idRegistro);
+                row.put("nome_funcionario", nomeFuncionario);
+                row.put("data", data);
+                row.put("hora_entrada", horaEntrada);
+                row.put("minutos_atraso", minutosAtraso);
+                resultado.add(row);
+
+                System.out.printf("%-5d %-20s %-15s %-10s %-12d%n",
+                        idRegistro,
+                        nomeFuncionario,
+                        data,
+                        horaEntrada != null ? horaEntrada.toString() : "-",
+                        minutosAtraso);
+            }
+
+            System.out.println("=".repeat(75));
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar atrasos: " + e.getMessage());
+        }
+
+        return resultado;
+    }
+
+    /**
+     * Consulta a View vw_horas_extras_mes e exibe os resultados.
+     */
+    public List<Map<String, Object>> listarHorasExtrasMes() {
+        String sql = "SELECT * FROM vw_horas_extras_mes ORDER BY mes DESC";
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            System.out.println("\n=== Horas Extras Mensais (View vw_horas_extras_mes) ===");
+            System.out.printf("%-5s %-20s %-6s %-15s%n",
+                    "ID", "Funcionário", "Mês", "Horas Extras");
+            System.out.println("=".repeat(55));
+
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                int idFuncionario = rs.getInt("id_funcionario");
+                String nomeFuncionario = rs.getString("nome_funcionario");
+                String mes = rs.getString("mes");
+                BigDecimal horasExtras = rs.getBigDecimal("horas_extras");
+
+                row.put("id_funcionario", idFuncionario);
+                row.put("nome_funcionario", nomeFuncionario);
+                row.put("mes", mes);
+                row.put("horas_extras", horasExtras);
+                resultado.add(row);
+
+                System.out.printf("%-5d %-20s %-6s %-15s%n",
+                        idFuncionario,
+                        nomeFuncionario,
+                        mes,
+                        horasExtras != null ? horasExtras.toString() : "0.00");
+            }
+
+            System.out.println("=".repeat(55));
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar horas extras mensais: " + e.getMessage());
+        }
+
+        return resultado;
+    }
 }
