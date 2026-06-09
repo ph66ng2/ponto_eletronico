@@ -168,10 +168,6 @@ public class RegistroPontoDAO {
         }
     }
 
-    /**
-     * Consulta a View vw_registro_completo e retorna uma lista de mapas
-     * com os dados completos do registro.
-     */
     public List<Map<String, Object>> listarRegistroCompleto() {
         String sql = "SELECT * FROM vw_registro_completo ORDER BY data DESC";
 
@@ -228,11 +224,8 @@ public class RegistroPontoDAO {
         return resultado;
     }
 
-    /**
-     * Chama a Function calcular_horas_trabalhadas via SELECT.
-     */
-    public BigDecimal calcularHorasTrabalhadas(int idFuncionario, String dataInicio, String dataFim) {
-        String sql = "SELECT calcular_horas_trabalhadas(?, ?::date, ?::date)";
+    public BigDecimal calcularHoras(int idFuncionario, String dataInicio, String dataFim, String modo) {
+        String sql = "SELECT calcular_horas(?, ?::date, ?::date, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -240,80 +233,27 @@ public class RegistroPontoDAO {
             stmt.setInt(1, idFuncionario);
             stmt.setString(2, dataInicio);
             stmt.setString(3, dataFim);
+            stmt.setString(4, modo);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     BigDecimal horas = rs.getBigDecimal(1);
-                    System.out.printf("Total de horas trabalhadas: %.2f horas%n", horas);
+                    if ("extras".equals(modo)) {
+                        System.out.printf("Total de horas extras: %.2f horas%n", horas);
+                    } else {
+                        System.out.printf("Total de horas trabalhadas: %.2f horas%n", horas);
+                    }
                     return horas;
                 }
             }
 
         } catch (SQLException e) {
-            System.err.println("Erro ao calcular horas trabalhadas: " + e.getMessage());
+            System.err.println("Erro ao calcular horas: " + e.getMessage());
         }
 
         return BigDecimal.ZERO;
     }
 
-    /**
-     * Chama a Function calcular_horas_extras via SELECT.
-     */
-    public BigDecimal calcularHorasExtras(int idFuncionario, String dataInicio, String dataFim) {
-        String sql = "SELECT calcular_horas_extras(?, ?::date, ?::date)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idFuncionario);
-            stmt.setString(2, dataInicio);
-            stmt.setString(3, dataFim);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    BigDecimal horas = rs.getBigDecimal(1);
-                    System.out.printf("Total de horas extras: %.2f horas%n", horas);
-                    return horas;
-                }
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao calcular horas extras: " + e.getMessage());
-        }
-
-        return BigDecimal.ZERO;
-    }
-
-    /**
-     * Chama a Function calcular_minutos_atraso via SELECT.
-     */
-    public int calcularMinutosAtraso(int idFuncionario, String data) {
-        String sql = "SELECT calcular_minutos_atraso(?, ?::date)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idFuncionario);
-            stmt.setString(2, data);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    int minutos = rs.getInt(1);
-                    System.out.printf("Minutos de atraso: %d minutos%n", minutos);
-                    return minutos;
-                }
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao calcular minutos de atraso: " + e.getMessage());
-        }
-
-        return 0;
-    }
-
-    /**
-     * Chama a Procedure registrar_saida via CallableStatement.
-     */
     public void registrarSaida(int idRegistro, String horaSaida) {
         String sql = "{call registrar_saida(?, ?::time)}";
 
@@ -330,29 +270,6 @@ public class RegistroPontoDAO {
         }
     }
 
-    /**
-     * Chama a Procedure fechar_mes via CallableStatement.
-     */
-    public void fecharMes(int idDepartamento, int mes, int ano) {
-        String sql = "{call fechar_mes(?, ?, ?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
-            stmt.setInt(1, idDepartamento);
-            stmt.setInt(2, mes);
-            stmt.setInt(3, ano);
-            stmt.execute();
-            System.out.println("Mês fechado com sucesso para o departamento!");
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao fechar mês: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Consulta a View vw_atrasos e exibe os resultados.
-     */
     public List<Map<String, Object>> listarAtrasos() {
         String sql = "SELECT * FROM vw_atrasos ORDER BY data DESC";
 
@@ -394,52 +311,6 @@ public class RegistroPontoDAO {
 
         } catch (SQLException e) {
             System.err.println("Erro ao listar atrasos: " + e.getMessage());
-        }
-
-        return resultado;
-    }
-
-    /**
-     * Consulta a View vw_horas_extras_mes e exibe os resultados.
-     */
-    public List<Map<String, Object>> listarHorasExtrasMes() {
-        String sql = "SELECT * FROM vw_horas_extras_mes ORDER BY mes DESC";
-
-        List<Map<String, Object>> resultado = new ArrayList<>();
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            System.out.println("\n=== Horas Extras Mensais (View vw_horas_extras_mes) ===");
-            System.out.printf("%-20s %-6s %-6s %-15s%n",
-                    "Funcionário", "Ano", "Mês", "Horas Extras");
-            System.out.println("=".repeat(50));
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                String funcionario = rs.getString("funcionario");
-                int ano = rs.getInt("ano");
-                int mes = rs.getInt("mes");
-                BigDecimal horasExtras = rs.getBigDecimal("horas_extras");
-
-                row.put("funcionario", funcionario);
-                row.put("ano", ano);
-                row.put("mes", mes);
-                row.put("horas_extras", horasExtras);
-                resultado.add(row);
-
-                System.out.printf("%-20s %-6d %-6d %-15s%n",
-                        funcionario,
-                        ano,
-                        mes,
-                        horasExtras != null ? horasExtras.toString() : "0.00");
-            }
-
-            System.out.println("=".repeat(50));
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao listar horas extras mensais: " + e.getMessage());
         }
 
         return resultado;

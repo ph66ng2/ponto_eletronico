@@ -1,0 +1,13 @@
+=== CENÁRIO 3: MENU PRINCIPAL - OPÇÕES 1-6 E 0 VISÍVEIS ===
+STATUS: ✅ PASS
+
+Opções exibidas no menu principal:
+  ✅ 1. Gerenciar Departamentos
+  ✅ 2. Gerenciar Cargos
+  ✅ 3. Gerenciar Funcionários
+  ✅ 4. Registro de Ponto
+  ✅ 5. Justificativa de Ausência
+  ✅ 6. Relatórios
+  ✅ 0. Sair
+
+Todas as 7 opções (1-6 + 0) estão visíveis e rotuladas corretamente.

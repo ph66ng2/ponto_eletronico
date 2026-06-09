@@ -1,9 +1,9 @@
 -- ============================================================================
--- Script DML - Sistema de Ponto Eletrônico
+-- Script DML - Sistema de Ponto Eletrônico (Simplificado)
 -- Criado em: 09/06/2026
 -- Descrição: Dados de exemplo e operações CRUD completas.
 --            Inclui INSERTs realistas, UPDATEs, DELETEs seguros,
---            SELECTs com JOIN, chamadas a Functions, Procedures e Views.
+--            SELECTs com JOIN, chamadas a Function, Procedure e Views.
 -- Banco: PostgreSQL 14+
 -- Dependência: 01_ddl.sql já deve ter sido executado.
 -- Executar com: psql -U paulo -d ponto_eletronico -f sql/02_dml.sql
@@ -210,40 +210,28 @@ ORDER BY ja.data DESC;
 
 
 -- ============================================================================
--- 5. SELECTs chamando Functions (3)
+-- 5. SELECTs chamando Function (2 modos)
 -- ============================================================================
 
--- 5.1. Total de horas trabalhadas por João Silva em janeiro/2024
+-- 5.1. Total de horas trabalhadas (modo 'normal') — João Silva em janeiro/2024
 SELECT 'João Silva'                                                  AS funcionario,
-       calcular_horas_trabalhadas(1, '2024-01-01'::date, '2024-01-31'::date) AS total_horas;
+       calcular_horas(1, '2024-01-01'::date, '2024-01-31'::date, 'normal') AS total_horas;
 
--- 5.2. Total de horas extras de João Silva em janeiro/2024
+-- 5.2. Total de horas extras (modo 'extras') — João Silva em janeiro/2024
 SELECT 'João Silva'                                                  AS funcionario,
-       calcular_horas_extras(1, '2024-01-01'::date, '2024-01-31'::date)     AS horas_extras;
-
--- 5.3. Minutos de atraso de João Silva em 15/01/2024
-SELECT 'João Silva'                                                  AS funcionario,
-       '2024-01-15'                                                  AS data,
-       calcular_minutos_atraso(1, '2024-01-15'::date)               AS minutos_atraso;
+       calcular_horas(1, '2024-01-01'::date, '2024-01-31'::date, 'extras') AS horas_extras;
 
 
 -- ============================================================================
--- 6. CALL de Procedures (3)
+-- 6. CALL de Procedure (1)
 -- ============================================================================
 
 -- 6.1. Registrar saída do João Silva no registro em andamento (id_registro=5)
 CALL registrar_saida(5, '18:00'::time);
 
--- 6.2. Registrar justificativa de ausência para Maria Oliveira
-CALL justificar_ausencia(2, '2024-01-20', 'atestado', 'Consulta médica de rotina');
-
--- 6.3. Emitir relatório de fechamento do mês para o departamento de TI —
---      janeiro/2024 (mês=1, ano=2024)
-CALL fechar_mes(1, 1, 2024);
-
 
 -- ============================================================================
--- 7. SELECT nas Views (3)
+-- 7. SELECT nas Views (2)
 -- ============================================================================
 
 -- 7.1. Visão completa dos registros de ponto
@@ -254,8 +242,4 @@ LIMIT 10;
 -- 7.2. Lista de atrasos (entrada após 08:00)
 SELECT * FROM vw_atrasos
 ORDER BY data DESC
-LIMIT 10;
-
--- 7.3. Total de horas extras por funcionário/mês
-SELECT * FROM vw_horas_extras_mes
 LIMIT 10;

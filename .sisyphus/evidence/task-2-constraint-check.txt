@@ -1,0 +1,12 @@
+=== TESTE DE RESTRIÇÃO chk_horario ===
+Data: ter 09 jun 2026 13:23:22 -03
+
+-- Inserindo dados de teste para validação da constraint
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+
+-- INVÁLIDO: hora_saida < hora_entrada (deve falhar)
+ERRO:  a nova linha da relação "registro_ponto" viola a restrição de verificação "chk_horario"
+DETALHE:  Registro que falhou contém (2, 1, 2026-06-09, 08:00:00, 07:00:00, null).

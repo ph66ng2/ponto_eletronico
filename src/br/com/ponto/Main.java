@@ -29,12 +29,9 @@ public class Main {
             exibirMenuPrincipal();
             int op = lerInt("Escolha: ");
             switch (op) {
-                case 1: menuDepartamentos(); break;
-                case 2: menuCargos(); break;
-                case 3: menuFuncionarios(); break;
-                case 4: menuRegistroPonto(); break;
-                case 5: menuJustificativa(); break;
-                case 6: menuRelatorios(); break;
+                case 1: menuCadastros(); break;
+                case 2: menuFuncionarios(); break;
+                case 3: menuPontoRelatorios(); break;
                 case 0:
                     System.out.println("Encerrando...");
                     System.exit(0);
@@ -121,13 +118,32 @@ public class Main {
         System.out.println("============================================");
         System.out.println("  SISTEMA DE PONTO ELETRÔNICO");
         System.out.println("============================================");
-        System.out.println("1. Gerenciar Departamentos");
-        System.out.println("2. Gerenciar Cargos");
-        System.out.println("3. Gerenciar Funcionários");
-        System.out.println("4. Registro de Ponto");
-        System.out.println("5. Justificativa de Ausência");
-        System.out.println("6. Relatórios");
+        System.out.println("1. Cadastros (Departamentos e Cargos)");
+        System.out.println("2. Funcionários");
+        System.out.println("3. Ponto e Relatórios");
         System.out.println("0. Sair");
+    }
+
+    // ======================================================================
+    // Submenu 1: Cadastros (Departamentos + Cargos)
+    // ======================================================================
+
+    private static void menuCadastros() {
+        while (true) {
+            System.out.println();
+            System.out.println("--- CADASTROS ---");
+            System.out.println("1. Departamentos");
+            System.out.println("2. Cargos");
+            System.out.println("0. Voltar");
+
+            int op = lerInt("Escolha: ");
+            switch (op) {
+                case 1: menuDepartamentos(); break;
+                case 2: menuCargos(); break;
+                case 0: return;
+                default: System.out.println("Opção inválida!");
+            }
+        }
     }
 
     // ======================================================================
@@ -325,7 +341,7 @@ public class Main {
     }
 
     // ======================================================================
-    // Submenu: Funcionários
+    // Submenu 2: Funcionários
     // ======================================================================
 
     private static void menuFuncionarios() {
@@ -366,7 +382,6 @@ public class Main {
             return;
         }
 
-        // Mostrar departamentos disponíveis
         List<Departamento> depts = deptDAO.listarTodos();
         if (depts.isEmpty()) {
             System.out.println("Cadastre um departamento primeiro.");
@@ -378,7 +393,6 @@ public class Main {
         }
         int idDept = lerInt("ID do departamento: ");
 
-        // Mostrar cargos disponíveis
         List<Cargo> cargos = cargoDAO.listarTodos();
         if (cargos.isEmpty()) {
             System.out.println("Cadastre um cargo primeiro.");
@@ -470,38 +484,40 @@ public class Main {
     }
 
     // ======================================================================
-    // Submenu: Registro de Ponto
+    // Submenu 3: Ponto e Relatórios
     // ======================================================================
 
-    private static void menuRegistroPonto() {
+    private static void menuPontoRelatorios() {
         while (true) {
             System.out.println();
-            System.out.println("--- REGISTRO DE PONTO ---");
+            System.out.println("--- PONTO E RELATÓRIOS ---");
             System.out.println("1. Registrar entrada");
             System.out.println("2. Registrar saída (Procedure)");
-            System.out.println("3. Consultar ponto por funcionário");
-            System.out.println("4. Listar todos os registros");
-            System.out.println("5. Consultar registro completo (View)");
-            System.out.println("6. Calcular horas trabalhadas (Function)");
-            System.out.println("7. Calcular horas extras (Function)");
-            System.out.println("8. Calcular minutos de atraso (Function)");
+            System.out.println("3. Listar registros de ponto");
+            System.out.println("4. Registro completo (View)");
+            System.out.println("5. Atrasos (View)");
+            System.out.println("6. Calcular horas trabalhadas (Function - normal)");
+            System.out.println("7. Calcular horas extras (Function - modo extras)");
+            System.out.println("8. Justificativas (CRUD)");
             System.out.println("0. Voltar");
 
             int op = lerInt("Escolha: ");
             switch (op) {
                 case 1: registrarEntrada(); break;
                 case 2: registrarSaida(); break;
-                case 3: consultarPontoFuncionario(); break;
-                case 4: listarTodosRegistros(); break;
-                case 5: pontoDAO.listarRegistroCompleto(); pausa(); break;
-                case 6: calcularHorasTrabalhadas(); break;
+                case 3: listarTodosRegistros(); break;
+                case 4: pontoDAO.listarRegistroCompleto(); pausa(); break;
+                case 5: pontoDAO.listarAtrasos(); pausa(); break;
+                case 6: calcularHorasNormal(); break;
                 case 7: calcularHorasExtras(); break;
-                case 8: calcularMinutosAtraso(); break;
+                case 8: menuJustificativas(); break;
                 case 0: return;
                 default: System.out.println("Opção inválida!");
             }
         }
     }
+
+    // --- Operações de Ponto ---
 
     private static void registrarEntrada() {
         int idFunc = lerInt("ID do funcionário: ");
@@ -540,31 +556,6 @@ public class Main {
         pausa();
     }
 
-    private static void consultarPontoFuncionario() {
-        int idFunc = lerInt("ID do funcionário: ");
-        List<RegistroPonto> todos = pontoDAO.listarTodos();
-        boolean encontrou = false;
-        System.out.println("\n=== Registros do Funcionário ID " + idFunc + " ===");
-        System.out.printf("%-5s %-15s %-10s %-10s %-20s%n",
-                "ID", "Data", "Entrada", "Saída", "Observação");
-        System.out.println("=".repeat(70));
-        for (RegistroPonto r : todos) {
-            if (r.getIdFuncionario() == idFunc) {
-                encontrou = true;
-                System.out.printf("%-5d %-15s %-10s %-10s %-20s%n",
-                        r.getIdRegistro(),
-                        r.getData() != null ? r.getData().format(DATE_FMT) : "-",
-                        r.getHoraEntrada() != null ? r.getHoraEntrada().format(TIME_FMT) : "-",
-                        r.getHoraSaida() != null ? r.getHoraSaida().format(TIME_FMT) : "-",
-                        r.getObservacao() != null ? r.getObservacao() : "");
-            }
-        }
-        if (!encontrou) {
-            System.out.println("Nenhum registro encontrado para este funcionário.");
-        }
-        pausa();
-    }
-
     private static void listarTodosRegistros() {
         List<RegistroPonto> lista = pontoDAO.listarTodos();
         if (lista.isEmpty()) {
@@ -587,11 +578,13 @@ public class Main {
         pausa();
     }
 
-    private static void calcularHorasTrabalhadas() {
+    // --- Funções de Cálculo (unificadas) ---
+
+    private static void calcularHorasNormal() {
         int idFunc = lerInt("ID do funcionário: ");
         String dataInicio = lerString("Data início (yyyy-MM-dd): ");
         String dataFim = lerString("Data fim (yyyy-MM-dd): ");
-        pontoDAO.calcularHorasTrabalhadas(idFunc, dataInicio, dataFim);
+        pontoDAO.calcularHoras(idFunc, dataInicio, dataFim, "normal");
         pausa();
     }
 
@@ -599,35 +592,28 @@ public class Main {
         int idFunc = lerInt("ID do funcionário: ");
         String dataInicio = lerString("Data início (yyyy-MM-dd): ");
         String dataFim = lerString("Data fim (yyyy-MM-dd): ");
-        pontoDAO.calcularHorasExtras(idFunc, dataInicio, dataFim);
-        pausa();
-    }
-
-    private static void calcularMinutosAtraso() {
-        int idFunc = lerInt("ID do funcionário: ");
-        String data = lerString("Data (yyyy-MM-dd): ");
-        pontoDAO.calcularMinutosAtraso(idFunc, data);
+        pontoDAO.calcularHoras(idFunc, dataInicio, dataFim, "extras");
         pausa();
     }
 
     // ======================================================================
-    // Submenu: Justificativa de Ausência
+    // Submenu: Justificativas (via DAO, sem Procedure)
     // ======================================================================
 
-    private static void menuJustificativa() {
+    private static void menuJustificativas() {
         while (true) {
             System.out.println();
-            System.out.println("--- JUSTIFICATIVA DE AUSÊNCIA ---");
-            System.out.println("1. Registrar justificativa (Procedure)");
+            System.out.println("--- JUSTIFICATIVAS ---");
+            System.out.println("1. Inserir");
             System.out.println("2. Listar todas");
             System.out.println("3. Buscar por ID");
-            System.out.println("4. Aprovar justificativa");
+            System.out.println("4. Aprovar");
             System.out.println("5. Remover");
             System.out.println("0. Voltar");
 
             int op = lerInt("Escolha: ");
             switch (op) {
-                case 1: registrarJustificativaProcedure(); break;
+                case 1: inserirJustificativa(); break;
                 case 2: listarJustificativas(); break;
                 case 3: buscarJustificativaPorId(); break;
                 case 4: aprovarJustificativa(); break;
@@ -638,13 +624,21 @@ public class Main {
         }
     }
 
-    private static void registrarJustificativaProcedure() {
+    private static void inserirJustificativa() {
         int idFunc = lerInt("ID do funcionário: ");
-        String data = lerString("Data (yyyy-MM-dd): ");
-        String tipo = lerString("Tipo (ex: MÉDICO, PESSOAL, OUTRO): ");
-        if (tipo.isEmpty()) tipo = "OUTRO";
+        LocalDate data = lerData("Data da justificativa");
+        System.out.print("Tipo (atestado, ferias, pessoal, outro): ");
+        String tipo = sc.nextLine().trim().toLowerCase();
+        if (tipo.isEmpty()) tipo = "outro";
         String descricao = lerString("Descrição: ");
-        justDAO.justificarAusencia(idFunc, data, tipo, descricao);
+
+        JustificativaAusencia j = new JustificativaAusencia();
+        j.setIdFuncionario(idFunc);
+        j.setData(data);
+        j.setTipo(tipo);
+        j.setDescricao(descricao);
+        j.setAprovada(false);
+        justDAO.inserir(j);
         pausa();
     }
 
@@ -695,40 +689,6 @@ public class Main {
     private static void removerJustificativa() {
         int id = lerInt("ID da justificativa: ");
         justDAO.remover(id);
-        pausa();
-    }
-
-    // ======================================================================
-    // Submenu: Relatórios
-    // ======================================================================
-
-    private static void menuRelatorios() {
-        while (true) {
-            System.out.println();
-            System.out.println("--- RELATÓRIOS ---");
-            System.out.println("1. Registro completo de ponto (View vw_registro_completo)");
-            System.out.println("2. Atrasos (View vw_atrasos)");
-            System.out.println("3. Horas extras mensais (View vw_horas_extras_mes)");
-            System.out.println("4. Fechar mês do departamento");
-            System.out.println("0. Voltar");
-
-            int op = lerInt("Escolha: ");
-            switch (op) {
-                case 1: pontoDAO.listarRegistroCompleto(); pausa(); break;
-                case 2: pontoDAO.listarAtrasos(); pausa(); break;
-                case 3: pontoDAO.listarHorasExtrasMes(); pausa(); break;
-                case 4: fecharMesDepartamento(); break;
-                case 0: return;
-                default: System.out.println("Opção inválida!");
-            }
-        }
-    }
-
-    private static void fecharMesDepartamento() {
-        int idDept = lerInt("ID do departamento: ");
-        int mes = lerInt("Mês (1-12): ");
-        int ano = lerInt("Ano (ex: 2026): ");
-        pontoDAO.fecharMes(idDept, mes, ano);
         pausa();
     }
 

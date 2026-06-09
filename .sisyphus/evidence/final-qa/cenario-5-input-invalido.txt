@@ -1,0 +1,24 @@
+=== CENÁRIO 5: INPUT INVÁLIDO - "abc" NO MENU ===
+STATUS: ✅ PASS
+
+COMANDO: printf "abc\n0\n" | java -cp out:lib/postgresql-42.7.3.jar br.com.ponto.Main
+
+SAÍDA:
+============================================
+  SISTEMA DE PONTO ELETRÔNICO
+============================================
+1. Gerenciar Departamentos
+2. Gerenciar Cargos
+3. Gerenciar Funcionários
+4. Registro de Ponto
+5. Justificativa de Ausência
+6. Relatórios
+0. Sair
+Escolha: Entrada inválida! Digite um número.
+Escolha: Encerrando...
+
+ANÁLISE:
+- Input "abc" capturado pelo método lerInt()
+- NumberFormatException tratada → mensagem "Entrada inválida! Digite um número."
+- Loop while(true) re-exibe o prompt "Escolha: "
+- Sem crash, sem stacktrace, sem estado corrompido

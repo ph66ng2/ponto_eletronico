@@ -1,0 +1,72 @@
+=== EXECUÇÃO DO SCRIPT 01_ddl.sql ===
+Data: ter 09 jun 2026 13:23:15 -03
+
+=== DROP OUTPUT ===
+DROP PROCEDURE
+DROP PROCEDURE
+DROP PROCEDURE
+DROP VIEW
+DROP VIEW
+DROP VIEW
+DROP FUNCTION
+DROP FUNCTION
+DROP FUNCTION
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE VIEW
+CREATE VIEW
+CREATE VIEW
+CREATE PROCEDURE
+CREATE PROCEDURE
+CREATE PROCEDURE
+
+=== TABELAS (\dt) ===
+                  List of tables
+ Esquema |          Nome          |  Tipo  | Dono  
+---------+------------------------+--------+-------
+ public  | cargo                  | tabela | paulo
+ public  | departamento           | tabela | paulo
+ public  | funcionario            | tabela | paulo
+ public  | justificativa_ausencia | tabela | paulo
+ public  | registro_ponto         | tabela | paulo
+(5 linhas)
+
+
+=== VIEWS (\dv) ===
+                 List of views
+ Esquema |         Nome         | Tipo  | Dono  
+---------+----------------------+-------+-------
+ public  | vw_atrasos           | visão | paulo
+ public  | vw_horas_extras_mes  | visão | paulo
+ public  | vw_registro_completo | visão | paulo
+(3 linhas)
+
+
+=== FUNCTIONS & PROCEDURES (\df) ===
+                                                                             Lista de funções
+ Esquema |            Nome            | Tipo de dados do resultado |                                 Tipo de dados dos argumentos                                  | Tipo 
+---------+----------------------------+----------------------------+-----------------------------------------------------------------------------------------------+------
+ public  | calcular_horas_extras      | numeric                    | p_id_funcionario integer, p_data_inicio date, p_data_fim date                                 | func
+ public  | calcular_horas_trabalhadas | numeric                    | p_id_funcionario integer, p_data_inicio date, p_data_fim date                                 | func
+ public  | calcular_minutos_atraso    | integer                    | p_id_funcionario integer, p_data date                                                         | func
+ public  | fechar_mes                 |                            | IN p_id_departamento integer, IN p_mes integer, IN p_ano integer                              | proc
+ public  | justificar_ausencia        |                            | IN p_id_funcionario integer, IN p_data date, IN p_tipo character varying, IN p_descricao text | proc
+ public  | registrar_saida            |                            | IN p_id_registro integer, IN p_hora_saida time without time zone                              | proc
+(6 linhas)
+

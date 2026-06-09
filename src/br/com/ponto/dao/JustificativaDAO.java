@@ -1,6 +1,5 @@
 package br.com.ponto.dao;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -141,27 +140,6 @@ public class JustificativaDAO {
 
         } catch (SQLException e) {
             System.err.println("Erro ao aprovar justificativa: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Chama a Procedure justificar_ausencia via CallableStatement.
-     */
-    public void justificarAusencia(int idFuncionario, String data, String tipo, String descricao) {
-        String sql = "{call justificar_ausencia(?, ?::date, ?, ?)}";
-
-        try (Connection conn = DBConnection.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
-
-            stmt.setInt(1, idFuncionario);
-            stmt.setString(2, data);
-            stmt.setString(3, tipo);
-            stmt.setString(4, descricao);
-            stmt.execute();
-            System.out.println("Justificativa registrada com sucesso!");
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao registrar justificativa: " + e.getMessage());
         }
     }
 }
