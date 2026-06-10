@@ -521,7 +521,18 @@ public class Main {
 
     private static void registrarEntrada() {
         int idFunc = lerInt("ID do funcionário: ");
-        LocalDate data = lerData("Data do registro");
+        String dataStr = lerString("Data do registro (dd/MM/yyyy, ENTER para hoje): ");
+        LocalDate data;
+        if (dataStr.isEmpty()) {
+            data = LocalDate.now();
+        } else {
+            try {
+                data = LocalDate.parse(dataStr, DATE_FMT);
+            } catch (DateTimeParseException e) {
+                System.out.println("Data inválida. Usando data de hoje.");
+                data = LocalDate.now();
+            }
+        }
         String entradaStr = lerString("Hora de entrada (HH:mm, ENTER para agora): ");
         LocalTime horaEntrada;
         if (entradaStr.isEmpty()) {
@@ -626,7 +637,18 @@ public class Main {
 
     private static void inserirJustificativa() {
         int idFunc = lerInt("ID do funcionário: ");
-        LocalDate data = lerData("Data da justificativa");
+        String dataStr = lerString("Data da justificativa (dd/MM/yyyy, ENTER para hoje): ");
+        LocalDate data;
+        if (dataStr.isEmpty()) {
+            data = LocalDate.now();
+        } else {
+            try {
+                data = LocalDate.parse(dataStr, DATE_FMT);
+            } catch (DateTimeParseException e) {
+                System.out.println("Data inválida. Usando data de hoje.");
+                data = LocalDate.now();
+            }
+        }
         System.out.print("Tipo (atestado, ferias, pessoal, outro): ");
         String tipo = sc.nextLine().trim().toLowerCase();
         if (tipo.isEmpty()) tipo = "outro";
