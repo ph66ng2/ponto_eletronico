@@ -289,7 +289,7 @@ public class RegistroPontoDAO {
     }
 
     public void registrarSaida(int idRegistro, String horaSaida) {
-        String sql = "{call registrar_saida(?, ?::time)}";
+        String sql = "CALL registrar_saida(?, ?::time)";
         ConectaPostgres banco = new ConectaPostgres();
         banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
         try {
