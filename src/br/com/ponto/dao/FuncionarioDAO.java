@@ -1,6 +1,5 @@
 package br.com.ponto.dao;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,16 +10,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import br.com.ponto.connection.DBConnection;
+import br.com.ponto.config.DBConfig;
+import br.com.ponto.connection.ConectaPostgres;
 import br.com.ponto.model.Funcionario;
 
 public class FuncionarioDAO {
 
     public void inserir(Funcionario f) {
         String sql = "INSERT INTO funcionario (nome, cpf, id_departamento, id_cargo, data_admissao) VALUES (?, ?, ?, ?, ?)";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        ConectaPostgres banco = new ConectaPostgres();
+        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+        try {
+            PreparedStatement stmt = banco.getConexao().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, f.getNome());
             stmt.setString(2, f.getCpf());
@@ -30,42 +31,51 @@ public class FuncionarioDAO {
 
             stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    f.setIdFuncionario(rs.getInt(1));
-                }
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) {
+                f.setIdFuncionario(rs.getInt(1));
             }
+            rs.close();
+            stmt.close();
 
             System.out.println("Funcionário inserido com sucesso! ID: " + f.getIdFuncionario());
 
         } catch (SQLException e) {
             System.err.println("Erro ao inserir funcionário: " + e.getMessage());
+        } finally {
+            banco.Desconectar();
         }
     }
 
     public Funcionario buscarPorId(int id) {
         String sql = "SELECT * FROM funcionario WHERE id_funcionario = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        ConectaPostgres banco = new ConectaPostgres();
+        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+        try {
+            PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
 
             stmt.setInt(1, id);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Funcionario f = new Funcionario();
-                    f.setIdFuncionario(rs.getInt("id_funcionario"));
-                    f.setNome(rs.getString("nome"));
-                    f.setCpf(rs.getString("cpf"));
-                    f.setIdDepartamento(rs.getInt("id_departamento"));
-                    f.setIdCargo(rs.getInt("id_cargo"));
-                    f.setDataAdmissao(rs.getDate("data_admissao").toLocalDate());
-                    return f;
-                }
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Funcionario f = new Funcionario();
+                f.setIdFuncionario(rs.getInt("id_funcionario"));
+                f.setNome(rs.getString("nome"));
+                f.setCpf(rs.getString("cpf"));
+                f.setIdDepartamento(rs.getInt("id_departamento"));
+                f.setIdCargo(rs.getInt("id_cargo"));
+                f.setDataAdmissao(rs.getDate("data_admissao").toLocalDate());
+                rs.close();
+                stmt.close();
+                return f;
             }
+            rs.close();
+            stmt.close();
 
         } catch (SQLException e) {
             System.err.println("Erro ao buscar funcionário por ID: " + e.getMessage());
+        } finally {
+            banco.Desconectar();
         }
 
         return null;
@@ -74,10 +84,11 @@ public class FuncionarioDAO {
     public List<Funcionario> listarTodos() {
         String sql = "SELECT * FROM funcionario ORDER BY id_funcionario";
         List<Funcionario> lista = new ArrayList<>();
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        ConectaPostgres banco = new ConectaPostgres();
+        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+        try {
+            PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 Funcionario f = new Funcionario();
@@ -90,8 +101,13 @@ public class FuncionarioDAO {
                 lista.add(f);
             }
 
+            rs.close();
+            stmt.close();
+
         } catch (SQLException e) {
             System.err.println("Erro ao listar funcionários: " + e.getMessage());
+        } finally {
+            banco.Desconectar();
         }
 
         return lista;
@@ -99,9 +115,10 @@ public class FuncionarioDAO {
 
     public void atualizar(Funcionario f) {
         String sql = "UPDATE funcionario SET nome = ?, cpf = ?, id_departamento = ?, id_cargo = ? WHERE id_funcionario = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        ConectaPostgres banco = new ConectaPostgres();
+        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+        try {
+            PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
 
             stmt.setString(1, f.getNome());
             stmt.setString(2, f.getCpf());
@@ -110,21 +127,26 @@ public class FuncionarioDAO {
             stmt.setInt(5, f.getIdFuncionario());
 
             int linhas = stmt.executeUpdate();
+            stmt.close();
             System.out.println("Funcionário atualizado! Linhas afetadas: " + linhas);
 
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar funcionário: " + e.getMessage());
+        } finally {
+            banco.Desconectar();
         }
     }
 
     public void remover(int id) {
         String sql = "DELETE FROM funcionario WHERE id_funcionario = ?";
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        ConectaPostgres banco = new ConectaPostgres();
+        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+        try {
+            PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
+            stmt.close();
             System.out.println("Funcionário removido com sucesso!");
 
         } catch (SQLException e) {
@@ -133,6 +155,8 @@ public class FuncionarioDAO {
             } else {
                 System.err.println("Erro ao remover funcionário: " + e.getMessage());
             }
+        } finally {
+            banco.Desconectar();
         }
     }
 
@@ -144,10 +168,11 @@ public class FuncionarioDAO {
                    + "ORDER BY f.id_funcionario";
 
         List<Map<String, Object>> resultado = new ArrayList<>();
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        ConectaPostgres banco = new ConectaPostgres();
+        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
+        try {
+            PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
             System.out.println("\n=== Funcionários com Departamento e Cargo ===");
             System.out.printf("%-5s %-20s %-15s %-20s %-20s %-15s%n",
@@ -173,10 +198,14 @@ public class FuncionarioDAO {
                         rs.getDate("data_admissao"));
             }
 
+            rs.close();
+            stmt.close();
             System.out.println("=".repeat(95));
 
         } catch (SQLException e) {
             System.err.println("Erro ao listar funcionários com departamento e cargo: " + e.getMessage());
+        } finally {
+            banco.Desconectar();
         }
 
         return resultado;
