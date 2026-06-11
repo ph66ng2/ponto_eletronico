@@ -1,3 +1,4 @@
 out/
 lib/*.jar
 *.class
+.sisyphus/
