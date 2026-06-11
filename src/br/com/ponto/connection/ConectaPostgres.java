@@ -2,13 +2,6 @@ package br.com.ponto.connection;
 
 import java.sql.*;
 
-/**
- * Classe de conexão com PostgreSQL — adaptada do exemplo da professora.
- * Mantém a estrutura original (Conectar/Desconectar) com melhorias:
- * - Substitui JOptionPane por System.out (console, não GUI)
- * - Usa PreparedStatement internamente nos DAOs
- * - Aponta para porta 5433 com trust auth (sem senha)
- */
 public class ConectaPostgres {
 
     private Connection con = null;
@@ -16,10 +9,6 @@ public class ConectaPostgres {
     private String usuario;
     private String senha;
 
-    /**
-     * Estabelece conexão com o banco PostgreSQL.
-     * Segue o padrão apresentado em aula: Class.forName + DriverManager.
-     */
     public void Conectar(String strEnd, String strUsuario, String strSenha) {
         endereco = strEnd;
         usuario = strUsuario;
@@ -28,10 +17,10 @@ public class ConectaPostgres {
         System.out.println("Tentando realizar conexão com o banco de dados...");
 
         try {
-            // Passo 1: Registrar o driver do PostgreSQL
+            //  Registrar o driver do PostgreSQL
             Class.forName("org.postgresql.Driver");
 
-            // Passo 2: Obter a conexão com o banco de dados
+            //  Obter a conexão com o banco de dados
             con = DriverManager.getConnection(endereco, usuario, senha);
 
             System.out.println("Banco conectado com sucesso!");
@@ -47,16 +36,12 @@ public class ConectaPostgres {
         }
     }
 
-    /**
-     * Retorna a conexão ativa para ser usada pelos DAOs.
-     */
+    
     public Connection getConexao() {
         return con;
     }
 
-    /**
-     * Encerra a conexão com o banco de dados.
-     */
+    
     public void Desconectar() {
         try {
             if (con != null && !con.isClosed()) {

@@ -253,8 +253,8 @@ public class RegistroPontoDAO {
         return resultado;
     }
 
-    public BigDecimal calcularHoras(int idFuncionario, String dataInicio, String dataFim, String modo) {
-        String sql = "SELECT calcular_horas(?, ?::date, ?::date, ?)";
+    public BigDecimal calcularHoras(int idFuncionario, String dataInicio, String dataFim) {
+        String sql = "SELECT calcular_horas(?, ?, ?)";
         ConectaPostgres banco = new ConectaPostgres();
         banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
         try {
@@ -263,16 +263,11 @@ public class RegistroPontoDAO {
             stmt.setInt(1, idFuncionario);
             stmt.setString(2, dataInicio);
             stmt.setString(3, dataFim);
-            stmt.setString(4, modo);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 BigDecimal horas = rs.getBigDecimal(1);
-                if ("extras".equals(modo)) {
-                    System.out.printf("Total de horas extras: %.2f horas%n", horas);
-                } else {
-                    System.out.printf("Total de horas trabalhadas: %.2f horas%n", horas);
-                }
+                System.out.printf("Total de horas trabalhadas: %.2f horas%n", horas);
                 rs.close();
                 stmt.close();
                 return horas;
@@ -307,56 +302,5 @@ public class RegistroPontoDAO {
         } finally {
             banco.Desconectar();
         }
-    }
-
-    public List<Map<String, Object>> listarAtrasos() {
-        String sql = "SELECT * FROM vw_atrasos ORDER BY data DESC";
-
-        List<Map<String, Object>> resultado = new ArrayList<>();
-        ConectaPostgres banco = new ConectaPostgres();
-        banco.Conectar(DBConfig.URL, DBConfig.USER, DBConfig.PASSWORD);
-        try {
-            PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            System.out.println("\n=== Atrasos (View vw_atrasos) ===");
-            System.out.printf("%-5s %-20s %-15s %-10s %-12s%n",
-                    "ID", "Funcionário", "Data", "Entrada", "Min. Atraso");
-            System.out.println("=".repeat(75));
-
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                int idRegistro = rs.getInt("id_registro");
-                String funcionario = rs.getString("funcionario");
-                LocalDate data = rs.getDate("data").toLocalDate();
-                java.sql.Time horaEntrada = rs.getTime("hora_entrada");
-                int minutosAtraso = rs.getInt("minutos_atraso");
-
-                row.put("id_registro", idRegistro);
-                row.put("funcionario", funcionario);
-                row.put("data", data);
-                row.put("hora_entrada", horaEntrada);
-                row.put("minutos_atraso", minutosAtraso);
-                resultado.add(row);
-
-                System.out.printf("%-5d %-20s %-15s %-10s %-12d%n",
-                        idRegistro,
-                        funcionario,
-                        data,
-                        horaEntrada != null ? horaEntrada.toString() : "-",
-                        minutosAtraso);
-            }
-
-            rs.close();
-            stmt.close();
-            System.out.println("=".repeat(75));
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao listar atrasos: " + e.getMessage());
-        } finally {
-            banco.Desconectar();
-        }
-
-        return resultado;
     }
 }

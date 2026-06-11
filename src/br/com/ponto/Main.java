@@ -41,9 +41,9 @@ public class Main {
         }
     }
 
-    // ======================================================================
-    // Helpers de entrada (protegidos contra NumberFormatException)
-    // ======================================================================
+
+    // Helpers 
+  
 
     private static int lerInt(String prompt) {
         while (true) {
@@ -109,9 +109,9 @@ public class Main {
         sc.nextLine();
     }
 
-    // ======================================================================
+  
     // Menu Principal
-    // ======================================================================
+    
 
     private static void exibirMenuPrincipal() {
         System.out.println();
@@ -124,9 +124,9 @@ public class Main {
         System.out.println("0. Sair");
     }
 
-    // ======================================================================
-    // Submenu 1: Cadastros (Departamentos + Cargos)
-    // ======================================================================
+   
+    //  Cadastros 
+   
 
     private static void menuCadastros() {
         while (true) {
@@ -146,9 +146,8 @@ public class Main {
         }
     }
 
-    // ======================================================================
-    // Submenu: Departamentos
-    // ======================================================================
+    // Departamentos
+  
 
     private static void menuDepartamentos() {
         while (true) {
@@ -240,10 +239,9 @@ public class Main {
         pausa();
     }
 
-    // ======================================================================
-    // Submenu: Cargos
-    // ======================================================================
 
+    //  Cargos
+    
     private static void menuCargos() {
         while (true) {
             System.out.println();
@@ -340,9 +338,9 @@ public class Main {
         pausa();
     }
 
-    // ======================================================================
-    // Submenu 2: Funcionários
-    // ======================================================================
+
+    //  Funcionários
+   
 
     private static void menuFuncionarios() {
         while (true) {
@@ -483,9 +481,9 @@ public class Main {
         pausa();
     }
 
-    // ======================================================================
-    // Submenu 3: Ponto e Relatórios
-    // ======================================================================
+    
+    //  Ponto e Relatórios
+   
 
     private static void menuPontoRelatorios() {
         while (true) {
@@ -495,10 +493,8 @@ public class Main {
             System.out.println("2. Registrar saída (Procedure)");
             System.out.println("3. Listar registros de ponto");
             System.out.println("4. Registro completo (View)");
-            System.out.println("5. Atrasos (View)");
-            System.out.println("6. Calcular horas trabalhadas (Function - normal)");
-            System.out.println("7. Calcular horas extras (Function - modo extras)");
-            System.out.println("8. Justificativas (CRUD)");
+            System.out.println("5. Calcular horas trabalhadas (Function)");
+            System.out.println("6. Justificativas (CRUD)");
             System.out.println("0. Voltar");
 
             int op = lerInt("Escolha: ");
@@ -507,17 +503,15 @@ public class Main {
                 case 2: registrarSaida(); break;
                 case 3: listarTodosRegistros(); break;
                 case 4: pontoDAO.listarRegistroCompleto(); pausa(); break;
-                case 5: pontoDAO.listarAtrasos(); pausa(); break;
-                case 6: calcularHorasNormal(); break;
-                case 7: calcularHorasExtras(); break;
-                case 8: menuJustificativas(); break;
+                case 5: calcularHorasNormal(); break;
+                case 6: menuJustificativas(); break;
                 case 0: return;
                 default: System.out.println("Opção inválida!");
             }
         }
     }
 
-    // --- Operações de Ponto ---
+    //  Operações de Ponto 
 
     private static void registrarEntrada() {
         int idFunc = lerInt("ID do funcionário: ");
@@ -589,59 +583,47 @@ public class Main {
         pausa();
     }
 
-    // --- Funções de Cálculo (unificadas) ---
+    // Funções de Cálculo  
 
     private static void calcularHorasNormal() {
         int idFunc = lerInt("ID do funcionário: ");
-        String dataAdmissao = buscarDataAdmissao(idFunc);
-        String dataInicio = lerDataOuHoje("Data inicial (dd/MM/yyyy, ENTER = admissão " + dataAdmissao + "): ", dataAdmissao);
-        String dataFim = lerDataOuHoje("Data final (dd/MM/yyyy, ENTER = hoje): ", null);
-        pontoDAO.calcularHoras(idFunc, dataInicio, dataFim, "normal");
-        pausa();
-    }
 
-    private static void calcularHorasExtras() {
-        int idFunc = lerInt("ID do funcionário: ");
-        String dataAdmissao = buscarDataAdmissao(idFunc);
-        String dataInicio = lerDataOuHoje("Data inicial (dd/MM/yyyy, ENTER = admissão " + dataAdmissao + "): ", dataAdmissao);
-        String dataFim = lerDataOuHoje("Data final (dd/MM/yyyy, ENTER = hoje): ", null);
-        pontoDAO.calcularHoras(idFunc, dataInicio, dataFim, "extras");
-        pausa();
-    }
-
-    private static String buscarDataAdmissao(int idFunc) {
-        Funcionario f = funcDAO.buscarPorId(idFunc);
-        if (f != null && f.getDataAdmissao() != null) {
-            return f.getDataAdmissao().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        }
-        return "2024-01-01";
-    }
-
-    /**
-     * Lê data no formato dd/MM/yyyy e retorna no formato yyyy-MM-dd para SQL.
-     * Se vazio e valorPadrao não for null, usa valorPadrao.
-     * Se vazio e valorPadrao for null, usa data de hoje.
-     */
-    private static String lerDataOuHoje(String prompt, String valorPadrao) {
-        while (true) {
-            System.out.print(prompt);
-            String entrada = sc.nextLine().trim();
-            if (entrada.isEmpty()) {
-                if (valorPadrao != null) return valorPadrao;
-                return LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            }
+        System.out.print("Data inicial (dd/MM/yyyy, ENTER = 01/01/2024): ");
+        String entradaInicio = sc.nextLine().trim();
+        String dataInicio;
+        if (entradaInicio.isEmpty()) {
+            dataInicio = "2024-01-01";
+        } else {
             try {
-                LocalDate data = LocalDate.parse(entrada, DATE_FMT);
-                return data.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                dataInicio = LocalDate.parse(entradaInicio, DATE_FMT)
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             } catch (DateTimeParseException e) {
-                System.out.println("Data inválida! Use dd/MM/yyyy.");
+                System.out.println("Data inválida. Usando 01/01/2024.");
+                dataInicio = "2024-01-01";
             }
         }
+
+        System.out.print("Data final (dd/MM/yyyy, ENTER = hoje): ");
+        String entradaFim = sc.nextLine().trim();
+        String dataFim;
+        if (entradaFim.isEmpty()) {
+            dataFim = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } else {
+            try {
+                dataFim = LocalDate.parse(entradaFim, DATE_FMT)
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e) {
+                System.out.println("Data inválida. Usando data de hoje.");
+                dataFim = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
+        }
+
+        pontoDAO.calcularHoras(idFunc, dataInicio, dataFim);
+        pausa();
     }
 
-    // ======================================================================
-    // Submenu: Justificativas (via DAO, sem Procedure)
-    // ======================================================================
+    // Justificativas
+  
 
     private static void menuJustificativas() {
         while (true) {
