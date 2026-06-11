@@ -114,9 +114,10 @@ public class CargoDAO {
         try {
             PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
             stmt.setInt(1, id);
-            stmt.executeUpdate();
+            int linhas = stmt.executeUpdate();
             stmt.close();
-            System.out.println("Cargo removido com sucesso! ID: " + id);
+            if (linhas > 0) System.out.println("Cargo removido com sucesso! ID: " + id);
+            else System.out.println("Cargo não encontrado.");
         } catch (SQLException e) {
             System.err.println("Erro ao remover cargo: " + e.getMessage());
         } finally {

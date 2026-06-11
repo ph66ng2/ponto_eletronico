@@ -180,9 +180,10 @@ public class RegistroPontoDAO {
             PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
 
             stmt.setInt(1, id);
-            stmt.executeUpdate();
+            int linhas = stmt.executeUpdate();
             stmt.close();
-            System.out.println("Registro de ponto removido com sucesso!");
+            if (linhas > 0) System.out.println("Registro de ponto removido com sucesso!");
+            else System.out.println("Registro de ponto não encontrado.");
 
         } catch (SQLException e) {
             System.err.println("Erro ao remover registro de ponto: " + e.getMessage());

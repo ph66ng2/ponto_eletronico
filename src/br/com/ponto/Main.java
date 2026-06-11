@@ -593,18 +593,50 @@ public class Main {
 
     private static void calcularHorasNormal() {
         int idFunc = lerInt("ID do funcionário: ");
-        String dataInicio = lerString("Data início (yyyy-MM-dd): ");
-        String dataFim = lerString("Data fim (yyyy-MM-dd): ");
+        String dataAdmissao = buscarDataAdmissao(idFunc);
+        String dataInicio = lerDataOuHoje("Data inicial (dd/MM/yyyy, ENTER = admissão " + dataAdmissao + "): ", dataAdmissao);
+        String dataFim = lerDataOuHoje("Data final (dd/MM/yyyy, ENTER = hoje): ", null);
         pontoDAO.calcularHoras(idFunc, dataInicio, dataFim, "normal");
         pausa();
     }
 
     private static void calcularHorasExtras() {
         int idFunc = lerInt("ID do funcionário: ");
-        String dataInicio = lerString("Data início (yyyy-MM-dd): ");
-        String dataFim = lerString("Data fim (yyyy-MM-dd): ");
+        String dataAdmissao = buscarDataAdmissao(idFunc);
+        String dataInicio = lerDataOuHoje("Data inicial (dd/MM/yyyy, ENTER = admissão " + dataAdmissao + "): ", dataAdmissao);
+        String dataFim = lerDataOuHoje("Data final (dd/MM/yyyy, ENTER = hoje): ", null);
         pontoDAO.calcularHoras(idFunc, dataInicio, dataFim, "extras");
         pausa();
+    }
+
+    private static String buscarDataAdmissao(int idFunc) {
+        Funcionario f = funcDAO.buscarPorId(idFunc);
+        if (f != null && f.getDataAdmissao() != null) {
+            return f.getDataAdmissao().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+        return "2024-01-01";
+    }
+
+    /**
+     * Lê data no formato dd/MM/yyyy e retorna no formato yyyy-MM-dd para SQL.
+     * Se vazio e valorPadrao não for null, usa valorPadrao.
+     * Se vazio e valorPadrao for null, usa data de hoje.
+     */
+    private static String lerDataOuHoje(String prompt, String valorPadrao) {
+        while (true) {
+            System.out.print(prompt);
+            String entrada = sc.nextLine().trim();
+            if (entrada.isEmpty()) {
+                if (valorPadrao != null) return valorPadrao;
+                return LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
+            try {
+                LocalDate data = LocalDate.parse(entrada, DATE_FMT);
+                return data.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            } catch (DateTimeParseException e) {
+                System.out.println("Data inválida! Use dd/MM/yyyy.");
+            }
+        }
     }
 
     // ======================================================================

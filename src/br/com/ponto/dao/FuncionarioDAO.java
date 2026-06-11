@@ -145,9 +145,10 @@ public class FuncionarioDAO {
             PreparedStatement stmt = banco.getConexao().prepareStatement(sql);
 
             stmt.setInt(1, id);
-            stmt.executeUpdate();
+            int linhas = stmt.executeUpdate();
             stmt.close();
-            System.out.println("Funcionário removido com sucesso!");
+            if (linhas > 0) System.out.println("Funcionário removido com sucesso!");
+            else System.out.println("Funcionário não encontrado.");
 
         } catch (SQLException e) {
             if ("23503".equals(e.getSQLState())) {
