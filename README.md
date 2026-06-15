@@ -402,7 +402,7 @@ O arquivo `sql/script.sql` contem exemplos de operacoes que servem como validaca
 
 ## 👥 Autores
 
-Paulo Medeiros
+Paulo Medeiros e
 Nicolas Machado
 
 **Orientadora:** Angela Peixoto
