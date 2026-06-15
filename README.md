@@ -402,11 +402,10 @@ O arquivo `sql/script.sql` contem exemplos de operacoes que servem como validaca
 
 ## 👥 Autores
 
-| Nome | Papel |
-|---|---|
-| Paulo Silva | Desenvolvedor |
+Paulo Medeiros
+Nicolas Machado
 
-**Orientadora:** Angela Peixoto Santana
+**Orientadora:** Angela Peixoto
 
 **Instituicao:** Universidade Catolica do Salvador (UCSAL) — 2026
 
